@@ -1,27 +1,43 @@
 import { gql, useMutation } from "@apollo/client";
 
 const ADD_TODO = gql`
-  mutation AddTodo($text: String!) {
-    addTodo(text: $text) {
+  mutation AddTodo($type: String!) {
+    addTodo(type: $type) {
       id
-      text
+      type
     }
   }
 `;
 
 const AddTodo = () => {
   let input;
-  const [addTodo, { data, loading, error }] = useMutation(ADD_TODO);
-
-  if (loading) return "Submitting...";
-  if (error) return `Submission error! ${error.message}`;
+  const [addTodo] = useMutation(ADD_TODO, {
+    update(cache, { data: { addTodo } }) {
+      cache.modify({
+        fields: {
+          todos(existingTodos = []) {
+            const newTodoRef = cache.writeFragment({
+              data: addTodo,
+              fragment: gql`
+                fragment NewTodo on Todo {
+                  id
+                  type
+                }
+              `,
+            });
+            return [...existingTodos, newTodoRef];
+          },
+        },
+      });
+    },
+  });
 
   return (
     <div>
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          addTodo({ variables: { text: input.value } });
+          addTodo({ variables: { type: input.value } });
           input.value = "";
         }}
       >
