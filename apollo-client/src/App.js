@@ -1,34 +1,20 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import {
-  ApolloClient,
-  InMemoryCache,
-  ApolloProvider,
-  useQuery,
-  gql,
-} from "@apollo/client";
-import { useEffect } from "react";
+import React from "react";
+import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
 
-function App() {
-  const client = new ApolloClient({
-    uri: "https://48p1r2roz4.sse.codesandbox.io",
-    cache: new InMemoryCache(),
-  });
+import ExchangeRates from "./components/ExchangeRates";
 
-  useEffect(() => {
-    client
-      .query({
-        query: gql`
-          query GetRates {
-            rates(currency: "USD") {
-              currency
-            }
-          }
-        `,
-      })
-      .then((result) => console.log(result));
-  }, [client]);
+const client = new ApolloClient({
+  uri: "https://48p1r2roz4.sse.codesandbox.io",
+  cache: new InMemoryCache(),
+});
 
-  return <div className="App">하이</div>;
-}
+const App = () => {
+  return (
+    <ApolloProvider client={client}>
+      <h2>My first Apollo app 🚀</h2>
+      <ExchangeRates />
+    </ApolloProvider>
+  );
+};
 
 export default App;
